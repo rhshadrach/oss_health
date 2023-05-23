@@ -1,0 +1,45 @@
+name: Docs
+on: [workflow_dispatch]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "publish to pages"
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v3
+
+      - name: Install dependencies
+        run: pip install .[docs]
+
+      - name: Show versions
+        run: pip freeze
+
+      - name: Build Docs
+        run: python docs/make.py
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs/build/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v1

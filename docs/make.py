@@ -19,9 +19,6 @@ import subprocess
 import sys
 import webbrowser
 
-import docutils
-import docutils.parsers.rst
-
 DOC_PATH = os.path.dirname(os.path.abspath(__file__))
 SOURCE_PATH = os.path.join(DOC_PATH, "source")
 BUILD_PATH = os.path.join(DOC_PATH, "build")
@@ -133,33 +130,6 @@ class DocBuilder:
         url = os.path.join("file://", DOC_PATH, "build", "html", single_doc_html)
         webbrowser.open(url, new=2)
 
-    def _get_page_title(self, page):
-        """
-        Open the rst file `page` and extract its title.
-        """
-        fname = os.path.join(SOURCE_PATH, f"{page}.rst")
-        option_parser = docutils.frontend.OptionParser(
-            components=(docutils.parsers.rst.Parser,)
-        )
-        doc = docutils.utils.new_document("<doc>", option_parser.get_default_values())
-        with open(fname, encoding="utf-8") as f:
-            data = f.read()
-
-        parser = docutils.parsers.rst.Parser()
-        # do not generate any warning when parsing the rst
-        with open(os.devnull, "a", encoding="utf-8") as f:
-            doc.reporter.stream = f
-            parser.parse(data, doc)
-
-        section = next(
-            node for node in doc.children if isinstance(node, docutils.nodes.section)
-        )
-        title = next(
-            node for node in section.children if isinstance(node, docutils.nodes.title)
-        )
-
-        return title.astext()
-
     def html(self):
         """
         Build HTML documentation.
@@ -243,8 +213,8 @@ def main():
     if args.command == "html":
         import oss_health
 
-        oss_health.make_pypi_to_github_mapping()
-        oss_health.run()
+        oss_health.make_pypi_to_github_mapping(1)
+        oss_health.run(1)
 
     # Set the matplotlib backend to the non-interactive Agg backend for all
     # child processes.

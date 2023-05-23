@@ -147,12 +147,12 @@ def make_report(summaries: dict[int, Summary]) -> None:
     print(ser.to_string())
 
 
-def run():
+def run(n_packages: int):
     gh = github.Github(os.environ.get("OSS_HEALTH_GH_PAT"))
     with open(PROJECT_ROOT / "pypi_mapping.json") as f:
         python_projects = list(json.load(f).values())
     projects = {
-        "python": python_projects,
+        "python": python_projects[:n_packages],
     }
 
     for domain in projects:
@@ -211,7 +211,7 @@ def abbreviate(x):
     return str(thing) + " " + abbreviations[a]
 
 
-def make_pypi_to_github_mapping():
+def make_pypi_to_github_mapping(n_packages: int):
     url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.json"
     with urllib.request.urlopen(url) as f:
         data = json.load(f)
@@ -224,7 +224,7 @@ def make_pypi_to_github_mapping():
             pypi_to_github = json.load(f)
     else:
         pypi_to_github = {}
-    for pypi_name, downloads in pypi_projects.iloc[:40].items():
+    for pypi_name, downloads in pypi_projects.iloc[:n_packages].items():
         value = pypi_to_github.get(pypi_name)
         if value is None:
             response = subprocess.run(

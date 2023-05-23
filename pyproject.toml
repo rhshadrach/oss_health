@@ -37,8 +37,9 @@ lint = [
     "ruff",
     "vulture",
 ]
+doc = ["sphinx"]
 test = ["pytest"]
-dev = ["oss_health[lint, test]"]
+dev = ["oss_health[lint, test, doc]"]
 
 [tool.codespell]
 ignore-words-list = "ser"
