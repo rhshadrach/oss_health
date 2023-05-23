@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oss_health"
+authors = [
+    {name = "Richard Shadrach", email = "rhshadrach@gmail.com"},
+]
+description = "Open Source Software Health Report"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "BSD-3-Clause"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "python-dateutil",
+    "pygithub",
+    "pandas",
+]
+dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = {file = "oss_health/VERSION"}
+
+[project.optional-dependencies]
+lint = [
+    "black",
+    "codespell",
+    "flake8",
+    "isort",
+    "mypy",
+    "pylint",
+    "pyright",
+    "pyupgrade",
+    "ruff",
+    "vulture",
+]
+test = ["pytest"]
+dev = ["oss_health[lint, test]"]
+
+[tool.codespell]
+ignore-words-list = "ser"
+
+[tool.isort]
+profile = "black"
