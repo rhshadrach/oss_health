@@ -85,6 +85,8 @@ def get_history(gh: github.Github, name: str, default_branch: str | None = None)
     print(f"Loaded history by grabbing {k} commits")
 
     result = pd.DataFrame(data, columns=["sha", "timestamp", "author"])
+    # Cache data may be no longer relevant
+    result = result[now - result.timestamp <= one_year]
     if cached is not None:
         result = pd.concat([result, cached])
     path.parent.mkdir(parents=True, exist_ok=True)
