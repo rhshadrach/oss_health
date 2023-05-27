@@ -151,7 +151,7 @@ def make_report(summaries: dict[int, Summary]) -> None:
 
 def run(github_pat: str):
     gh = github.Github(github_pat)
-    with urllib.request.urlopen(f"{ONLINE_CACHE_ROOT}/python/pypi_mapping.json") as f:
+    with urllib.request.urlopen(f"{CACHE_ROOT}/python/pypi_mapping.json") as f:
         python_projects = list(json.load(f).values())
     projects = {
         "python": python_projects,
