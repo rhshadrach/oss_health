@@ -55,7 +55,7 @@ def get_history(gh: github.Github, name: str, default_branch: str | None = None)
     one_year = dt.timedelta(days=360)
 
     input_path = ONLINE_CACHE_ROOT + f"/python/{name}.parquet"
-    output_path = CACHE_ROOT / "cache" / "python" / f"{name}.parquet"
+    output_path = CACHE_ROOT / "python" / f"{name}.parquet"
     response = requests.get(input_path)
     if response.status_code == 200:
         cached = pd.read_parquet(input_path)
@@ -220,7 +220,7 @@ def make_pypi_to_github_mapping(n_packages: int):
     pypi_projects = pd.DataFrame(data["rows"]).set_index("project")["download_count"]
 
     input_path = f"{ONLINE_CACHE_ROOT}/python/pypi_mapping.json"
-    output_path = CACHE_ROOT / "cache" / "python" / "pypi_mapping.json"
+    output_path = CACHE_ROOT / "python" / "pypi_mapping.json"
     response = requests.get(input_path)
     if response.status_code == 200:
         with urllib.request.urlopen(input_path) as f:
