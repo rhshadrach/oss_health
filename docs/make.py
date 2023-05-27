@@ -163,7 +163,6 @@ class DocBuilder:
 
 
 def main():
-    print("Starting make.py...")
     cmds = [method for method in dir(DocBuilder) if not method.startswith("_")]
 
     joined = ",".join(cmds)
@@ -212,7 +211,6 @@ def main():
     sys.path.insert(0, args.python_path)
     globals()["oss_health"] = importlib.import_module("oss_health")
 
-    print("Command:", args.command)
     if args.command == "html":
         import oss_health
 

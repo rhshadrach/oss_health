@@ -227,7 +227,7 @@ def make_pypi_to_github_mapping(n_packages: int):
         value = pypi_to_github.get(pypi_name)
         if value is None:
             response = subprocess.run(
-                f"pypisearch {pypi_name}", shell=True, capture_output=True
+                f"python -m pypisearch {pypi_name}", shell=True, capture_output=True
             )
             pypi_summary = response.stdout.decode()
             project = extract_substring(pypi_summary, "https://github.com/", "\n")
