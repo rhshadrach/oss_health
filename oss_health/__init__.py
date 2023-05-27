@@ -151,7 +151,7 @@ def run(n_packages: int, github_pat: str):
     with open(PROJECT_ROOT / "pypi_mapping.json") as f:
         python_projects = list(json.load(f).values())
     projects = {
-        "python": python_projects[: n_packages + 1],
+        "python": python_projects[:n_packages],
     }
 
     for domain in projects:
@@ -223,7 +223,7 @@ def make_pypi_to_github_mapping(n_packages: int):
             pypi_to_github = json.load(f)
     else:
         pypi_to_github = {}
-    for pypi_name, downloads in pypi_projects.iloc[: n_packages + 1].items():
+    for pypi_name, downloads in pypi_projects.iloc[:n_packages].items():
         value = pypi_to_github.get(pypi_name)
         if value is None:
             response = subprocess.run(

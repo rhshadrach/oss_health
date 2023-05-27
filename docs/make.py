@@ -211,6 +211,7 @@ def main():
     sys.path.insert(0, args.python_path)
     globals()["oss_health"] = importlib.import_module("oss_health")
 
+    print("Command:", args.command)
     if args.command == "html":
         import oss_health
 
