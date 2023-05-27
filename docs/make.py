@@ -216,8 +216,8 @@ def main():
     if args.command == "html":
         import oss_health
 
-        oss_health.make_pypi_to_github_mapping(1)
-        oss_health.run(1, args.github_pat)
+        oss_health.make_pypi_to_github_mapping(2)
+        oss_health.run(2, args.github_pat)
 
     builder = DocBuilder(
         args.num_jobs,
