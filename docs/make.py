@@ -163,6 +163,7 @@ class DocBuilder:
 
 
 def main():
+    print("Starting make.py...")
     cmds = [method for method in dir(DocBuilder) if not method.startswith("_")]
 
     joined = ",".join(cmds)
