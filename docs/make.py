@@ -215,7 +215,7 @@ def main():
         import oss_health
 
         oss_health.make_pypi_to_github_mapping(1)
-        oss_health.run(1)
+        oss_health.run(1, args.github_pat)
 
     builder = DocBuilder(
         args.num_jobs,
