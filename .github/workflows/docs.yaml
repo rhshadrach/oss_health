@@ -23,9 +23,6 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v3
 
-      - name: Install non-Python dependencies
-        run: sudo apt-get install -y pypisearch
-
       - name: Install package dependencies
         run: pip install .[doc]
 
