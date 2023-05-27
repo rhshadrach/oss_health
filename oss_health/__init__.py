@@ -215,14 +215,14 @@ def abbreviate(x):
     return str(thing) + " " + abbreviations[a]
 
 
-def make_pypi_to_github_mapping(n_packages: int):
+def make_pypi_to_github_mapping(new_packages: int):
     url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.json"
     with urllib.request.urlopen(url) as f:
         data = json.load(f)
     pypi_projects = pd.DataFrame(data["rows"]).set_index("project")["download_count"]
 
     input_path = f"{ONLINE_CACHE_ROOT}/python/pypi_mapping.json"
-    output_path = CACHE_ROOT / "cache" / "python" / "pypi_mapping.json"
+    output_path = CACHE_ROOT / "python" / "pypi_mapping.json"
     response = requests.get(input_path)
     if response.status_code == 200:
         with urllib.request.urlopen(input_path) as f:
@@ -231,8 +231,9 @@ def make_pypi_to_github_mapping(n_packages: int):
         pypi_to_github = {}
     successes = 0
     for pypi_name, downloads in pypi_projects.items():
+        project = ""
         value = pypi_to_github.get(pypi_name)
-        if value is None:
+        if value is None and successes < new_packages:
             response = subprocess.run(
                 f"python -m pypi_search {pypi_name}", shell=True, capture_output=True
             )
@@ -241,16 +242,13 @@ def make_pypi_to_github_mapping(n_packages: int):
             idx = nth_idx(project, 2, "/")
             if idx >= 0:
                 project = project[:idx]
-        else:
+            if project != "":
+                successes += 1
+        elif value is not None:
             project = value[0]
 
         if project != "":
-            successes += 1
-
-        pypi_to_github[pypi_name] = (project, abbreviate(downloads // 30))
-
-        if successes == n_packages:
-            break
+            pypi_to_github[pypi_name] = (project, abbreviate(downloads // 30))
 
     print(f"Processed {len(pypi_to_github)} repos:")
     print(pypi_to_github)
