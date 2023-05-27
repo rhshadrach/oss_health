@@ -87,6 +87,8 @@ def get_history(gh: github.Github, name: str, default_branch: str | None = None)
     print(f"Loaded history by grabbing {k} commits")
 
     result = pd.DataFrame(data, columns=["sha", "timestamp", "author"])
+    # Cache data may be no longer relevant
+    result = result[now - result.timestamp <= one_year]
     if cached is not None:
         result = pd.concat([result, cached])
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -213,7 +215,7 @@ def abbreviate(x):
     return str(thing) + " " + abbreviations[a]
 
 
-def make_pypi_to_github_mapping(n_packages: int):
+def make_pypi_to_github_mapping(new_packages: int):
     url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.json"
     with urllib.request.urlopen(url) as f:
         data = json.load(f)
@@ -229,8 +231,9 @@ def make_pypi_to_github_mapping(n_packages: int):
         pypi_to_github = {}
     successes = 0
     for pypi_name, downloads in pypi_projects.items():
+        project = ""
         value = pypi_to_github.get(pypi_name)
-        if value is None:
+        if value is None and successes < new_packages:
             response = subprocess.run(
                 f"python -m pypi_search {pypi_name}", shell=True, capture_output=True
             )
@@ -239,16 +242,13 @@ def make_pypi_to_github_mapping(n_packages: int):
             idx = nth_idx(project, 2, "/")
             if idx >= 0:
                 project = project[:idx]
-        else:
+            if project != "":
+                successes += 1
+        elif value is not None:
             project = value[0]
 
         if project != "":
-            successes += 1
-
-        pypi_to_github[pypi_name] = (project, abbreviate(downloads // 30))
-
-        if successes == n_packages:
-            break
+            pypi_to_github[pypi_name] = (project, abbreviate(downloads // 30))
 
     print(f"Processed {len(pypi_to_github)} repos:")
     print(pypi_to_github)
