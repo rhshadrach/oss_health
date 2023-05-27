@@ -53,7 +53,7 @@ def get_history(gh: github.Github, name: str, default_branch: str | None = None)
     one_year = dt.timedelta(days=360)
 
     base_path = Path(__file__).parent.parent
-    path = base_path / "history" / f"{name}.parquet"
+    path = base_path / "docs" / "source" / "history" / "python" / f"{name}.parquet"
     if path.exists():
         cached = pd.read_parquet(path)
         shas = set(cached.sha)
