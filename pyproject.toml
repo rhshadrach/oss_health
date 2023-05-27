@@ -16,6 +16,7 @@ classifiers = [
 ]
 dependencies = [
     "pandas",
+    "pyarrow",
     "python-dateutil",
     "pygithub",
     "pypi-search",
