@@ -1,5 +1,10 @@
 name: Build and deploy docs
-on: [workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
 permissions:
   contents: read
   pages: write
@@ -26,7 +31,7 @@ jobs:
         run: pip freeze
 
       - name: Build Docs
-        run: python docs/make.py
+        run: python docs/make.py --github-pat ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1

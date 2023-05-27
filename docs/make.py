@@ -180,6 +180,7 @@ def main():
     argparser.add_argument(
         "--python-path", type=str, default=os.path.dirname(DOC_PATH), help="path"
     )
+    argparser.add_argument("--github-pat", type=str, default="", help="path")
     argparser.add_argument(
         "-v",
         action="count",
@@ -215,10 +216,6 @@ def main():
 
         oss_health.make_pypi_to_github_mapping(1)
         oss_health.run(1)
-
-    # Set the matplotlib backend to the non-interactive Agg backend for all
-    # child processes.
-    os.environ["MPLBACKEND"] = "module://matplotlib.backends.backend_agg"
 
     builder = DocBuilder(
         args.num_jobs,

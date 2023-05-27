@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-import os
 import subprocess
 import urllib
 from pathlib import Path
@@ -147,12 +146,12 @@ def make_report(summaries: dict[int, Summary]) -> None:
     print(ser.to_string())
 
 
-def run(n_packages: int):
-    gh = github.Github(os.environ.get("OSS_HEALTH_GH_PAT"))
+def run(n_packages: int, github_pat: str):
+    gh = github.Github(github_pat)
     with open(PROJECT_ROOT / "pypi_mapping.json") as f:
         python_projects = list(json.load(f).values())
     projects = {
-        "python": python_projects[:n_packages],
+        "python": python_projects[: n_packages + 1],
     }
 
     for domain in projects:
@@ -224,7 +223,7 @@ def make_pypi_to_github_mapping(n_packages: int):
             pypi_to_github = json.load(f)
     else:
         pypi_to_github = {}
-    for pypi_name, downloads in pypi_projects.iloc[:n_packages].items():
+    for pypi_name, downloads in pypi_projects.iloc[: n_packages + 1].items():
         value = pypi_to_github.get(pypi_name)
         if value is None:
             response = subprocess.run(
@@ -238,6 +237,9 @@ def make_pypi_to_github_mapping(n_packages: int):
         else:
             project = value[0]
         pypi_to_github[pypi_name] = (project, abbreviate(downloads // 30))
+
+    print(f"Processed {len(pypi_to_github)} repos:")
+    print(pypi_to_github)
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:

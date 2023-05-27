@@ -24,6 +24,11 @@ dynamic = ["version"]
 [tool.setuptools.dynamic]
 version = {file = "oss_health/VERSION"}
 
+[project.urls]
+homepage = 'https://github.com/rhshadrach/oss_health'
+documentation = 'https://rhshadrach.github.io/oss_health/'
+repository = 'https://github.com/rhshadrach/oss_health'
+
 [project.optional-dependencies]
 lint = [
     "black",

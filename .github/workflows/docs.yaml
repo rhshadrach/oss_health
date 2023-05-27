@@ -1,5 +1,9 @@
 name: Docs
-on: [workflow_dispatch]
+on:
+  pull_request:
+    branches:
+      - main
+      -
 permissions:
   contents: read
   pages: write
@@ -28,18 +32,9 @@ jobs:
       - name: Build Docs
         run: python docs/make.py
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+      - name: Upload site as an artifact
+        uses: actions/upload-artifact@v3
         with:
+          name: docs
           path: docs/build/html
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deploy
-        uses: actions/deploy-pages@v1
+          retention-days: 14
