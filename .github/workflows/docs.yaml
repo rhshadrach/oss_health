@@ -30,7 +30,7 @@ jobs:
         run: pip freeze
 
       - name: Build Docs
-        run: python docs/make.py
+        run: python docs/make.py --github-pat ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload site as an artifact
         uses: actions/upload-artifact@v3
