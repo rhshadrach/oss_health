@@ -226,16 +226,11 @@ def make_pypi_to_github_mapping(n_packages: int):
     successes = 0
     for pypi_name, downloads in pypi_projects.items():
         value = pypi_to_github.get(pypi_name)
-        print(pypi_name, "got value", value)
         if value is None:
             response = subprocess.run(
                 f"python -m pypi_search {pypi_name}", shell=True, capture_output=True
             )
             pypi_summary = response.stdout.decode()
-            print(f"pypi_summary for {pypi_name}")
-            print(response)
-            print(pypi_summary)
-            print("---")
             project = extract_substring(pypi_summary, "https://github.com/", "\n")
             idx = nth_idx(project, 2, "/")
             if idx >= 0:
@@ -245,8 +240,6 @@ def make_pypi_to_github_mapping(n_packages: int):
 
         if project != "":
             successes += 1
-
-        print(f"project for {pypi_name} is {project}")
 
         pypi_to_github[pypi_name] = (project, abbreviate(downloads // 30))
 
