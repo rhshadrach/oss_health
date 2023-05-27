@@ -15,6 +15,7 @@ from github.GithubException import UnknownObjectException
 from oss_health.summary import Summary
 
 PROJECT_ROOT = Path(__file__).parent.parent
+CACHE_ROOT = PROJECT_ROOT / "docs" / "source" / "cache"
 
 
 def determine_default_branch(repo) -> str:
@@ -52,8 +53,7 @@ def get_history(gh: github.Github, name: str, default_branch: str | None = None)
     now = dt.datetime.now(dt.timezone.utc)
     one_year = dt.timedelta(days=360)
 
-    base_path = Path(__file__).parent.parent
-    path = base_path / "docs" / "source" / "history" / "python" / f"{name}.parquet"
+    path = CACHE_ROOT / "python" / f"{name}.parquet"
     if path.exists():
         cached = pd.read_parquet(path)
         shas = set(cached.sha)
@@ -148,7 +148,7 @@ def make_report(summaries: dict[int, Summary]) -> None:
 
 def run(github_pat: str):
     gh = github.Github(github_pat)
-    with open(PROJECT_ROOT / "pypi_mapping.json") as f:
+    with open(CACHE_ROOT / "python" / "pypi_mapping.json") as f:
         python_projects = list(json.load(f).values())
     projects = {
         "python": python_projects,
@@ -216,7 +216,7 @@ def make_pypi_to_github_mapping(n_packages: int):
         data = json.load(f)
     pypi_projects = pd.DataFrame(data["rows"]).set_index("project")["download_count"]
 
-    path = PROJECT_ROOT / "pypi_mapping.json"
+    path = CACHE_ROOT / "python" / "pypi_mapping.json"
 
     if path.exists():
         with open(path) as f:
