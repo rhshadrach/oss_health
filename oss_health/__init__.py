@@ -146,12 +146,12 @@ def make_report(summaries: dict[int, Summary]) -> None:
     print(ser.to_string())
 
 
-def run(n_packages: int, github_pat: str):
+def run(github_pat: str):
     gh = github.Github(github_pat)
     with open(PROJECT_ROOT / "pypi_mapping.json") as f:
         python_projects = list(json.load(f).values())
     projects = {
-        "python": python_projects[:n_packages],
+        "python": python_projects,
     }
 
     for domain in projects:
@@ -223,20 +223,35 @@ def make_pypi_to_github_mapping(n_packages: int):
             pypi_to_github = json.load(f)
     else:
         pypi_to_github = {}
-    for pypi_name, downloads in pypi_projects.iloc[:n_packages].items():
+    successes = 0
+    for pypi_name, downloads in pypi_projects.items():
         value = pypi_to_github.get(pypi_name)
+        print(pypi_name, "got value", value)
         if value is None:
             response = subprocess.run(
-                f"python -m pypisearch {pypi_name}", shell=True, capture_output=True
+                f"python -m pypi_search {pypi_name}", shell=True, capture_output=True
             )
             pypi_summary = response.stdout.decode()
+            print(f"pypi_summary for {pypi_name}")
+            print(response)
+            print(pypi_summary)
+            print("---")
             project = extract_substring(pypi_summary, "https://github.com/", "\n")
             idx = nth_idx(project, 2, "/")
             if idx >= 0:
                 project = project[:idx]
         else:
             project = value[0]
+
+        if project != "":
+            successes += 1
+
+        print(f"project for {pypi_name} is {project}")
+
         pypi_to_github[pypi_name] = (project, abbreviate(downloads // 30))
+
+        if successes == n_packages:
+            break
 
     print(f"Processed {len(pypi_to_github)} repos:")
     print(pypi_to_github)
