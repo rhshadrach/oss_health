@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-import os
 import subprocess
 import urllib
 from pathlib import Path
@@ -16,6 +15,7 @@ from github.GithubException import UnknownObjectException
 from oss_health.summary import Summary
 
 PROJECT_ROOT = Path(__file__).parent.parent
+CACHE_ROOT = PROJECT_ROOT / "docs" / "source" / "cache"
 
 
 def determine_default_branch(repo) -> str:
@@ -53,8 +53,7 @@ def get_history(gh: github.Github, name: str, default_branch: str | None = None)
     now = dt.datetime.now(dt.timezone.utc)
     one_year = dt.timedelta(days=360)
 
-    base_path = Path(__file__).parent.parent
-    path = base_path / "history" / f"{name}.parquet"
+    path = CACHE_ROOT / "python" / f"{name}.parquet"
     if path.exists():
         cached = pd.read_parquet(path)
         shas = set(cached.sha)
@@ -147,12 +146,12 @@ def make_report(summaries: dict[int, Summary]) -> None:
     print(ser.to_string())
 
 
-def run(n_packages: int):
-    gh = github.Github(os.environ.get("OSS_HEALTH_GH_PAT"))
-    with open(PROJECT_ROOT / "pypi_mapping.json") as f:
+def run(github_pat: str):
+    gh = github.Github(github_pat)
+    with open(CACHE_ROOT / "python" / "pypi_mapping.json") as f:
         python_projects = list(json.load(f).values())
     projects = {
-        "python": python_projects[:n_packages],
+        "python": python_projects,
     }
 
     for domain in projects:
@@ -217,18 +216,19 @@ def make_pypi_to_github_mapping(n_packages: int):
         data = json.load(f)
     pypi_projects = pd.DataFrame(data["rows"]).set_index("project")["download_count"]
 
-    path = PROJECT_ROOT / "pypi_mapping.json"
+    path = CACHE_ROOT / "python" / "pypi_mapping.json"
 
     if path.exists():
         with open(path) as f:
             pypi_to_github = json.load(f)
     else:
         pypi_to_github = {}
-    for pypi_name, downloads in pypi_projects.iloc[:n_packages].items():
+    successes = 0
+    for pypi_name, downloads in pypi_projects.items():
         value = pypi_to_github.get(pypi_name)
         if value is None:
             response = subprocess.run(
-                f"pypisearch {pypi_name}", shell=True, capture_output=True
+                f"python -m pypi_search {pypi_name}", shell=True, capture_output=True
             )
             pypi_summary = response.stdout.decode()
             project = extract_substring(pypi_summary, "https://github.com/", "\n")
@@ -237,7 +237,17 @@ def make_pypi_to_github_mapping(n_packages: int):
                 project = project[:idx]
         else:
             project = value[0]
+
+        if project != "":
+            successes += 1
+
         pypi_to_github[pypi_name] = (project, abbreviate(downloads // 30))
+
+        if successes == n_packages:
+            break
+
+    print(f"Processed {len(pypi_to_github)} repos:")
+    print(pypi_to_github)
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
