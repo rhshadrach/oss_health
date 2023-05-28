@@ -55,7 +55,7 @@ def get_history(gh: github.Github, name: str, default_branch: str | None = None)
     one_year = dt.timedelta(days=360)
 
     input_path = ONLINE_CACHE_ROOT + f"/python/{name}.parquet"
-    output_path = CACHE_ROOT / "cache" / "python" / f"{name}.parquet"
+    output_path = CACHE_ROOT / "python" / f"{name}.parquet"
     response = requests.get(input_path)
     if response.status_code == 200:
         cached = pd.read_parquet(input_path)
@@ -153,7 +153,7 @@ def make_report(summaries: dict[int, Summary]) -> None:
 
 def run(github_pat: str):
     gh = github.Github(github_pat)
-    with urllib.request.urlopen(f"{ONLINE_CACHE_ROOT}/python/pypi_mapping.json") as f:
+    with open(f"{CACHE_ROOT}/python/pypi_mapping.json") as f:
         python_projects = list(json.load(f).values())
     projects = {
         "python": python_projects,
